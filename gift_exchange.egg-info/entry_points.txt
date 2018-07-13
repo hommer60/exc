@@ -1,0 +1,3 @@
+[console_scripts]
+gift_exchange = gift_exchange.__main__:main
+
