@@ -2,6 +2,7 @@ README.md
 setup.py
 gift_exchange/__init__.py
 gift_exchange/__main__.py
+gift_exchange/logic.py
 gift_exchange.egg-info/PKG-INFO
 gift_exchange.egg-info/SOURCES.txt
 gift_exchange.egg-info/dependency_links.txt

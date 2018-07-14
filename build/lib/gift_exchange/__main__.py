@@ -8,7 +8,6 @@ def load_directory():
     ## Load directory if it exists or create a new one
     try:
         directory = pickle.load(open('memory.pickle', 'rb'))
-        print(directory)
     except (OSError, IOError) as e:
         directory = dict()
         pickle.dump(directory, open("memory.pickle", "wb")) 
@@ -20,37 +19,31 @@ def save_directory(directory):
 
 def delete_directory():
     try:
-        os.remove(filename)
+        os.remove("memory.pickle")
     except OSError:
         pass
 
 def register(args):
     directory = load_directory()
     name = ' '.join(args.name)
-    current_partner = None
+    partner = ' '.join(args.partner) if args.partner else None
     if name in directory:
         print("You've already been registered for the gift exchange")
-        current_partner = directory[name]
+        return
     else:
-        print("Great, we've added you to the gift exchange!")
-        directory[name] = current_partner
-    if args.partner:
-        partner = ' '.join(args.partner)
-        if partner in directory:
-            print("The partner you specified is already registered")
-            if directory[partner] != name:
-                print("And they registered as a couple with someone else...")
-                directory[name] = None
-        if current_partner and current_partner != partner:
-            update = input("You have already registered as a couple with someone else, would you like to update your partner? [Y/n]")
-            update = update.lower()
-            if update == 'y' or update == 'yes':
-                print("Your partner has been updated to " + partner)
+        if partner:
+            if partner in directory:
+                print("The partner you specified is already registered...\nTry registering just yourself or with a different partner")
+                return
+            else:
                 directory[name] = partner
                 directory[partner] = name
-            else:
-                print("Ok, your partner will remain " + current_partner)              
+                print("Great, we've added you and your partner to the gift exchange!")
+        else:
+            directory[name] = None
+            print("Great, we've added you to the gift exchange!")
     save_directory(directory)
+          
 
 def exchange(args):
     directory = load_directory()
@@ -61,24 +54,36 @@ def exchange(args):
         for match in matches:
             print(match[0] + " will give a gift to " + match[1])
 
+def valid_exchange(directory):
+    if len(directory) == 3:
+        num_singles = len([None for partner in directory.values() if partner == None])
+        return num_singles > 1
+    elif len(directory) == 2:
+        return None in directory.values()
+    else:
+        return True
+
 def run_exchange(directory):
-    participants = directory.keys()
-    givers = participants.copy()
-    recipients = participants.copy()
     matches = []
-    while len(givers) > 0 and len(recipients) > 0:
-        giver = random.choice(givers)
-        recipient = random.choice(recipient)
-        while giver == recipient or directory[giver] == recipient:
-            recipient = random.choice(recipient)
-        givers.remove(giver)
-        recipient.remove(recipient)
-        matches.append([giver, recipient])
+    if not valid_exchange(directory):
+        print("Sorry, not enough guests have signed up yet to execute a valid gift exchange")
+    else:
+        participants = list(directory.keys())
+        givers = participants.copy()
+        recipients = participants.copy()
+        print(participants)
+        while len(givers) > 0 and len(recipients) > 0:
+            giver = random.choice(givers)
+            recipient = random.choice(recipients)
+            if giver != recipient and directory[giver] != recipient:
+                recipients.remove(recipient)
+                givers.remove(giver)
+                matches.append([participant, recipient])
     return matches
 
 
 def reset(args):
-    confirmation = input("Are you sure you want to delete the current directory? [Y/N]")
+    confirmation = input("Are you sure you want to delete the current directory? [Y/N]\n")
     confirmation = confirmation.lower()
     if confirmation == 'yes' or confirmation == 'y':
         delete_directory()
@@ -115,7 +120,7 @@ def main():
     parser_exchange.set_defaults(func=exchange)
     ## ADD Import Subcommand
     parser_import = subparsers.add_parser('import', description='Import a guestlist using a csv - see the example file')
-    parser_exchange.set_defaults(func=import_list)
+    parser_import.set_defaults(func=import_list)
     args = parser.parse_args()
     if hasattr(args, 'func'):
         args.func(args)
