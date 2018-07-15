@@ -2,7 +2,11 @@ README.md
 setup.py
 gift_exchange/__init__.py
 gift_exchange/__main__.py
-gift_exchange/logic.py
+gift_exchange/argparser.py
+gift_exchange/commands.py
+gift_exchange/exchange_logic.py
+gift_exchange/testutils.py
+gift_exchange/utils.py
 gift_exchange.egg-info/PKG-INFO
 gift_exchange.egg-info/SOURCES.txt
 gift_exchange.egg-info/dependency_links.txt
