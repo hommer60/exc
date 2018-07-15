@@ -16,7 +16,7 @@ def valid_exchange(directory):
         return True
 
 def run_exchange(directory):
-    """Executes algorithm described in readme to create
+    """Executes algorithm described in README to create
        a list of valid matches"""
     guests = list(directory.keys())
     num_guests = len(guests)
